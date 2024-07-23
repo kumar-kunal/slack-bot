@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const { SELECTOR_TAGS } = require('./data-collector.constants');
 
 const baseUrl = process.env.SOURCE_WEBSITE_BASE_URL;
 const visitedUrls = new Set();
@@ -24,17 +25,17 @@ async function scrapeArticlePage(url) {
         const $ = await fetchPage(url);
         if (!$) return;
 
-        $('#article-content').each(async (index, element) => {
-            const title = $(element).find('h1').text().trim();
+        $(SELECTOR_TAGS.ARTICLE_CONTENT).each(async (index, element) => {
+            const title = $(element).find(SELECTOR_TAGS.HEADLINE).text().trim();
             let textContent = '';
             let videoLinks = [];
 
-            $(element).find('.content-block p').each((i, el) => {
+            $(element).find(SELECTOR_TAGS.CONTENT_BLOCK).each((i, el) => {
                 textContent += $(el).text().trim() + ' ';
             });
 
-            $(element).find('iframe').each((i, el) => {
-                const src = $(el).attr('src');
+            $(element).find(SELECTOR_TAGS.IFRAME).each((i, el) => {
+                const src = $(el).attr(SELECTOR_TAGS.SOURCE);
                 if (src) {
                     videoLinks.push(src);
                 }
@@ -55,8 +56,8 @@ async function scrapeCategoryPage(url) {
     const $ = await fetchPage(url);
     if (!$) return;
 
-    $('div#content a[href]').each(async (index, element) => {
-        const href = $(element).attr('href');
+    $(SELECTOR_TAGS.CONTENT).each(async (index, element) => {
+        const href = $(element).attr(SELECTOR_TAGS.LINK);
         if (href) {
             const newUrl = new URL(href, baseUrl).toString();
             await scrapeArticlePage(newUrl);
@@ -67,8 +68,8 @@ async function scrapeCategoryPage(url) {
 async function scrapeMainPage(url) {
     const $ = await fetchPage(url);
     if (!$) return;
-    $('div.category-block a[href]').each(async (index, element) => {
-        const href = $(element).attr('href');
+    $(SELECTOR_TAGS.CATEGORY_BLOCK).each(async (index, element) => {
+        const href = $(element).attr(SELECTOR_TAGS.LINK);
         if (href) {
             const newUrl = new URL(href, baseUrl).toString();
             await scrapeCategoryPage(newUrl);
