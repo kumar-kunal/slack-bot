@@ -14,19 +14,16 @@ function preprocessForEmbedding(){
     return articles.map(article => {
         const preprocessedTextContents = article.textContents.map(text => {
         // Convert to lowercase
-        let cleanedText = text.toLowerCase();
+        let lowerText = text.toLowerCase();
 
         // Tokenize the text
-        let tokens = tokenizer.tokenize(cleanedText);
+        let tokens = tokenizer.tokenize(lowerText);
 
         // Remove stop words
         //   tokens = stopword.removeStopwords(tokens);
 
         // Stem the words
         //   tokens = tokens.map(token => stemmer.stem(token));
-
-        // Rejoin tokens into a cleaned string
-        cleanedText = tokens.join(' ');
 
         const chunks = lodash.chunks(tokens, 1000).map(chunk => chunk.join(' '));
         return chunks;
