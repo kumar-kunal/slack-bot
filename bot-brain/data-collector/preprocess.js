@@ -1,9 +1,9 @@
 const natural = require('natural');
 const stopword = require('stopword');
 const fs = require("fs")
+const lodash = require('lodash');
 
 const rawArticleData = require('../public/articles.json');
-const { title } = require('process');
 
 function preprocessForEmbedding(){
 
@@ -28,12 +28,7 @@ function preprocessForEmbedding(){
         // Rejoin tokens into a cleaned string
         cleanedText = tokens.join(' ');
 
-        //   return cleanedText;
-        const chunks = [];
-        for (let i = 0; i < tokens.length; i += 1000) {
-            chunks.push(tokens.slice(i, i + 1000).join(' '));
-        }
-
+        const chunks = lodash.chunks(tokens, 1000).map(chunk => chunk.join(' '));
         return chunks;
         });
 
